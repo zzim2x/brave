@@ -1,10 +1,14 @@
-hash: 77de61de2fa6030fb8c775da1765f5a878db8ef1120f0119ba252f09c46815ec
-updated: 2018-04-16T17:27:10.727106638+09:00
+hash: cd3de8a5af7c0582c9729f3493e89fec971b7db81510290455919298c722f159
+updated: 2018-04-16T18:40:29.906802704+09:00
 imports:
 - name: github.com/davecgh/go-xdr
   version: e6a2ba005892b6a5b27cb5352f64c2e96942dd28
   subpackages:
   - xdr2
+- name: github.com/emirpasic/gods
+  version: f6c17b524822278a87e3b3bd809fec33b51f5b46
+  subpackages:
+  - sets/treeset
 testImports:
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76

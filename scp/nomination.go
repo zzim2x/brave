@@ -1,18 +1,26 @@
 package scp
 
+import (
+	"github.com/emirpasic/gods/sets/treeset"
+)
+
 type nominationProtocol struct {
 	started bool
 
-	roundNumber int32
-
-	// std::set 의 경우 기본이 sorted set 이다. 그에맞게 바꿔야한다. golang 에는 set container 도 없다.
-	votes       []Value
-	accepted    []Value
+	roundNumber   int32
+	previousValue Value
+	votes         *treeset.Set
+	accepted      *treeset.Set
+	// votes, accepted = sorted set
+	// marshaling 때, stellar-core 에서는 4byte 크기로 맞추고 실제 크기보다 4~7바이트 정도 크게 만들어진다.
 }
 
 func newNominationProtocol() *nominationProtocol {
 	return &nominationProtocol{
-		started: false,
+		started:     false,
+		roundNumber: 0,
+		votes:       treeset.NewWith(ValueComparator),
+		accepted:    treeset.NewWith(ValueComparator),
 	}
 }
 

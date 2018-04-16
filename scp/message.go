@@ -89,3 +89,31 @@ func (o *QuorumSet) Hash() (h Hash) {
 	copy(h[:], sha.Sum(nil))
 	return
 }
+
+func ValueComparator(a, b interface{}) int {
+	v1, v2 := a.(Value), b.(Value)
+	s1, s2 := len(v1), len(v2)
+
+	var minIndex int
+	if s1 < s2 {
+		minIndex = s1
+	} else {
+		minIndex = s2
+	}
+
+	for i := 0; i < minIndex; i++ {
+		if v1[i] < v2[i] {
+			return -1
+		} else if v1[i] > v2[i] {
+			return 1
+		}
+	}
+
+	if s1 < s2 {
+		return -1
+	} else if s1 == s2 {
+		return 0
+	} else {
+		return 1
+	}
+}
