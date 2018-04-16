@@ -1,0 +1,5 @@
+package: github.com/zzim2x/shyd
+import:
+- package: github.com/davecgh/go-xdr
+  subpackages:
+  - xdr2

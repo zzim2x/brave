@@ -1,0 +1,20 @@
+hash: 77de61de2fa6030fb8c775da1765f5a878db8ef1120f0119ba252f09c46815ec
+updated: 2018-04-16T17:27:10.727106638+09:00
+imports:
+- name: github.com/davecgh/go-xdr
+  version: e6a2ba005892b6a5b27cb5352f64c2e96942dd28
+  subpackages:
+  - xdr2
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
+  subpackages:
+  - assert
