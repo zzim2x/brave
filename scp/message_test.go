@@ -28,9 +28,11 @@ func TestSortedSet(t *testing.T) {
 	a.Add(Value{0, 1, 2, 9})
 	a.Add(Value{0, 1, 2, 3})
 	a.Add(Value{0, 1, 2, 4})
+	a.Add(Value{0, 1, 2, 4, 5})
 
 	values := a.Values()
 	assert.Equal(t, Value{0, 1, 2, 3}, values[0])
 	assert.Equal(t, Value{0, 1, 2, 4}, values[1])
-	assert.Equal(t, Value{0, 1, 2, 9}, values[2])
+	assert.Equal(t, Value{0, 1, 2, 4, 5}, values[2])
+	assert.Equal(t, Value{0, 1, 2, 9}, values[3])
 }
