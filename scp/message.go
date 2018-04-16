@@ -23,7 +23,7 @@ const (
 type QuorumSet struct {
 	Threshold  uint32
 	Validators []PublicKey
-	innerSets  []QuorumSet
+	InnerSets  []QuorumSet
 }
 
 type PublicKey struct {
@@ -91,7 +91,20 @@ func (o *QuorumSet) Hash() (h Hash) {
 }
 
 func ValueComparator(a, b interface{}) int {
-	v1, v2 := a.(Value), b.(Value)
+	var v1, v2 []uint8
+
+	if _, ok := a.(Value); ok {
+		v1 = a.(Value)
+	} else if _, ok := a.([]uint8); ok {
+		v1 = a.([]uint8)
+	}
+
+	if _, ok := b.(Value); ok {
+		v2 = b.(Value)
+	} else if _, ok := b.([]uint8); ok {
+		v2 = b.([]uint8)
+	}
+
 	s1, s2 := len(v1), len(v2)
 
 	var minIndex int
