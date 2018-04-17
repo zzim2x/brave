@@ -6,10 +6,10 @@ import (
 	"crypto/sha256"
 )
 
-type Hash [32]byte
+type Hash [32]uint8
 type Uint256 [32]byte
 type Value []uint8
-type Signature [64]byte
+type Signature []byte // variable payload max size : 64 : (size + 7) & ~3
 type SignatureHint [4]byte
 type StatementType int32
 
