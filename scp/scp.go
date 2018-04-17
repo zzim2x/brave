@@ -6,18 +6,37 @@ import (
 )
 
 type EnvelopeState int
+type ValidationLevel int
+
+// true 또는 false 는 확실하게 계산을 통해 확인 되는 경우 응답하는 결과이며
+// maybe 는 현재까지의 정보를 기준으로는 판단할 수 없는 경우 응답하는 값이다.
+// 예) IsNodeInQuorum : slot 여러개를 보면서 true|false 로 확신될 때까지 확인하고 안되면 maybe 넘기고 충분히 데이터가 쌓인 후 다음 연산에 결과를 답변하는 구조
 type TriBool int
 
+// 아래 상수 값은 변경될 수 있다. 코드 포팅하면서 바뀔 수 있음. stellar-core 서버와 통신할 때 문제가 확인될 때 변경된다. 아직까진 무슨값이든 문제될 것 없다.
 const (
-	EnvelopeStateInvalid EnvelopeState = 1
-	EnvelopeStateValid   EnvelopeState = 2
-	TriBoolTrue          TriBool       = 1
-	TriBoolFalse         TriBool       = 2
-	TriBoolMaybe         TriBool       = 3
+	EnvelopeStateInvalid               EnvelopeState   = 1
+	EnvelopeStateValid                 EnvelopeState   = 2
+	ValidationLevelInvalidValue        ValidationLevel = 1
+	ValidationLevelFullyValidatedValue ValidationLevel = 2
+	ValidationLevelMaybeValidValue     ValidationLevel = 3
+	TriBoolTrue                        TriBool         = 1
+	TriBoolFalse                       TriBool         = 2
+	TriBoolMaybe                       TriBool         = 3
 )
 
+// SCP 본연의 기능만을 수행하기위해서 필요한 driver
+// scp <-> application 를 이어주는 interface
 type Driver interface {
+	SignEnvelope(envelope *Envelope)
+
 	VerifyEnvelope(envelope Envelope) bool
+
+	ValidateValue(slotId uint64, value Value, nomination bool) ValidationLevel
+
+	GetQuorumSet(hash Hash) *QuorumSet
+
+	EmitEnvelope(envelope Envelope)
 }
 
 type SCP struct {
@@ -29,8 +48,9 @@ type SCP struct {
 	knownSlots   map[uint64]*slot
 }
 
-func NewSCP(nodeId PublicKey, isValidator bool, quorumSet QuorumSet) *SCP {
+func NewSCP(driver Driver, nodeId PublicKey, isValidator bool, quorumSet QuorumSet) *SCP {
 	scp := &SCP{
+		driver:       driver,
 		knownSlotIds: make([]uint64, 0),
 		knownSlots:   make(map[uint64]*slot),
 	}
@@ -86,6 +106,19 @@ func (o *SCP) GetLowSlotIndex() uint64 {
 		}
 	}
 	return uint64(slotId)
+}
+
+// isNodeInQuorum 함수는 매우 중요하다. 무수히 많은 peer 에서 envelopes 가 넘쳐난다.
+// 불특정 다수가 보내는 statement 중 무시해도 되는 정보인지 아는 것은 중요하다.
+func (o *SCP) IsNodeInQuorum(nodeId PublicKey) TriBool {
+	res := TriBoolMaybe
+	for _, s := range o.knownSlots {
+		res = s.IsNodeInQuorum(nodeId)
+		if res != TriBoolMaybe {
+			break
+		}
+	}
+	return res
 }
 
 func (o *SCP) GetHighSlotIndex() uint64 {

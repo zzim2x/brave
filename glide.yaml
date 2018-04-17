@@ -7,3 +7,4 @@ import:
   version: ~1.9.0
   subpackages:
   - sets/treeset
+  - sets/hashset
