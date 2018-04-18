@@ -45,7 +45,15 @@ func TestSCP_PurgeSlots(t *testing.T) {
 
 // quorum 5 threshold 4 & nomination test
 func TestSCP_Nominate(t *testing.T) {
-	//driver := &testDriver{}
-	//scp := NewSCP(driver, k1, true, quorumSet5T4)
-	//quorumSetHash := quorumSet5T4.Hash()
+	var envs []Envelope
+
+	driver := &testDriver{}
+	scp := NewSCP(driver, k1, true, quorumSet5T4)
+	quorumSetHash := quorumSet5T4.Hash()
+
+	votes, accepted := make([]Value, 0), make([]Value, 0)
+	votes = append(votes, Value{})
+
+	scp.ReceiveEnvelope()
+
 }

@@ -7,10 +7,10 @@ import (
 )
 
 type Hash [32]uint8
-type Uint256 [32]byte
+type Uint256 [32]uint8
 type Value []uint8
 type Signature []byte // variable payload max size : 64 : (size + 7) & ~3
-type SignatureHint [4]byte
+type SignatureHint [4]uint8
 type StatementType int32
 
 const (

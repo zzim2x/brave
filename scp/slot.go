@@ -5,6 +5,7 @@ type slot struct {
 	slotId             uint64
 	ballotProtocol     *ballotProtocol
 	nominationProtocol *nominationProtocol
+	fullyValidated     bool
 
 	statementsHistory []slotHistoricalStatement
 }
@@ -32,6 +33,10 @@ func (o *slot) nominate(value *Value, previousValue *Value, timeout bool) bool {
 
 func (o *slot) stopNomination() {
 	o.nominationProtocol.stopNomination()
+}
+
+func (o *slot) getLatestCompositeCandidate() Value {
+	return o.nominationProtocol.getLatestCompositeCandidate()
 }
 
 func (o *slot) processEnvelope(envelope Envelope, self bool) EnvelopeState {

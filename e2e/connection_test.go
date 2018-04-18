@@ -9,10 +9,12 @@ import (
 	"bytes"
 	"github.com/zzim2x/brave/scp"
 	"encoding/binary"
+	"time"
 )
 
 func Test_main(t *testing.T) {
 	conn, err := net.Dial("tcp", "127.0.0.1:11625")
+
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +34,7 @@ func Test_main(t *testing.T) {
 			},
 			Cert: sxdr.AuthCert{
 				Pubkey:     [32]uint8{},
-				Expiration: uint64(0),
+				Expiration: uint64(time.Now().UnixNano() / 1000),
 				// 야는 가변길이이면서 뒤에 padding 붙여야 함.
 				// (length + 7) & ~3
 				Signature: []uint8{
@@ -57,3 +59,5 @@ func Test_main(t *testing.T) {
 
 	fmt.Println(n, e)
 }
+
+

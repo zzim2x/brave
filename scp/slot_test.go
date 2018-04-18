@@ -47,7 +47,7 @@ func TestSlot_IsNodeInQuorum(t *testing.T) {
 		s1.statementsHistory,
 		slotHistoricalStatement{
 			statement: Statement{
-				NodeId: k1,
+				NodeId:        k1,
 				StatementType: StatementTypePrepare,
 				Prepare: &StatementPrepare{
 					QuorumSetHash: quorumSet5T4.Hash(),
@@ -77,7 +77,7 @@ func TestSlot_IsNodeInQuorum_v4_q3t1(t *testing.T) {
 			s1.statementsHistory,
 			slotHistoricalStatement{
 				statement: Statement{
-					NodeId: nodeId,
+					NodeId:        nodeId,
 					StatementType: StatementTypePrepare,
 					Prepare: &StatementPrepare{
 						QuorumSetHash: quorumSet3T1.Hash(),

@@ -69,7 +69,7 @@ func (o *SCP) StopNominate(slotId uint64) {
 	}
 }
 
-func (o *SCP) ReceiveSCPEnvelope(envelope Envelope) EnvelopeState {
+func (o *SCP) ReceiveEnvelope(envelope Envelope) EnvelopeState {
 	if !o.driver.VerifyEnvelope(envelope) {
 		return EnvelopeStateInvalid
 	}
