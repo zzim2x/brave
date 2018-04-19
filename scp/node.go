@@ -1,5 +1,9 @@
 package scp
 
+import (
+	"math"
+)
+
 type LocalNode struct {
 	scp           *SCP
 	nodeId        PublicKey
@@ -85,6 +89,22 @@ func forEachNodes(quorumSet QuorumSet, proc func(PublicKey)) {
 }
 
 func GetNodeWeight(nodeId PublicKey, quorumSet QuorumSet) uint64 {
+	n := uint64(quorumSet.Threshold)
+	d := uint64(len(quorumSet.InnerSets) + len(quorumSet.Validators))
+
+	for _, v := range quorumSet.Validators {
+		if v == nodeId {
+			return math.MaxUint64 * n / d
+		}
+	}
+
+	for _, q := range quorumSet.InnerSets {
+		leaf := GetNodeWeight(nodeId, q)
+		if leaf > 0 {
+			return leaf * n / d
+		}
+	}
+
 	return 0
 }
 

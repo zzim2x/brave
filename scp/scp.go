@@ -3,6 +3,9 @@ package scp
 import (
 	"sync"
 	"math"
+	"crypto/sha256"
+	"hash"
+	"github.com/davecgh/go-xdr/xdr"
 )
 
 type EnvelopeState int
@@ -37,6 +40,26 @@ type Driver interface {
 	GetQuorumSet(hash Hash) *QuorumSet
 
 	EmitEnvelope(envelope Envelope)
+
+	ComputeHashNode(slotIndex uint64, prev Value, isPriority bool, roundNumber int32, nodeId PublicKey) uint64
+
+	ComputeHashValue(slotIndex uint64, prev Value, roundNumber int32, value Value) uint64
+}
+
+func hashHelper(slotIndex uint64, prev Value, extra func(hash.Hash)) uint64 {
+	h := sha256.New()
+	if b, err := xdr.Marshal(slotIndex); err == nil {
+		h.Write(b)
+	}
+	h.Write(prev)
+	extra(h)
+	t := h.Sum(nil)
+
+	res := uint64(0)
+	for i := 0; i < 8; i++ {
+		res = (res << 8) | uint64(t[i])
+	}
+	return res
 }
 
 type SCP struct {

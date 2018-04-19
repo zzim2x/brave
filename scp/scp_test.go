@@ -62,8 +62,6 @@ func TestSCP_Simple(t *testing.T) {
 	scp.ReceiveEnvelope(newNomination(1, *k2, qs1.Hash()))
 	scp.ReceiveEnvelope(newNomination(1, *k3, qs1.Hash()))
 
-	// wip
-
 	fmt.Println(envs, scp)
 
 }

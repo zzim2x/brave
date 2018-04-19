@@ -4,6 +4,7 @@ import (
 	"github.com/davecgh/go-xdr/xdr2"
 	"bytes"
 	"crypto/sha256"
+	"encoding/hex"
 )
 
 type KeyType int32
@@ -31,6 +32,10 @@ type QuorumSet struct {
 type PublicKey struct {
 	Type    KeyType
 	Ed25519 Uint256
+}
+
+func (o PublicKey) Address() string {
+	return hex.EncodeToString(o.Ed25519[:])
 }
 
 type Envelope struct {

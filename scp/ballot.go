@@ -1,10 +1,12 @@
 package scp
 
 type ballotProtocol struct {
+	slot *slot
 }
 
-func newBallotProtocol() *ballotProtocol {
+func newBallotProtocol(s *slot) *ballotProtocol {
 	return &ballotProtocol{
+		slot: s,
 	}
 }
 

@@ -17,14 +17,14 @@ type slotHistoricalStatement struct {
 }
 
 func newSlot(scp *SCP, slotId uint64) *slot {
-	return &slot{
-		scp:                scp,
-		slotId:             slotId,
-		ballotProtocol:     newBallotProtocol(),
-		nominationProtocol: newNominationProtocol(),
-
+	s := &slot{
+		scp:               scp,
+		slotId:            slotId,
 		statementsHistory: make([]slotHistoricalStatement, 0),
 	}
+	s.ballotProtocol = newBallotProtocol(s)
+	s.nominationProtocol = newNominationProtocol(s)
+	return s
 }
 
 func (o *slot) nominate(value Value, previousValue Value, timeout bool) bool {
@@ -75,4 +75,12 @@ func (o *slot) getCompanionQuorumSetHashFromStatement(statement Statement) Hash 
 		return statement.Nomination.QuorumSetHash
 	}
 	return Hash{}
+}
+
+func (o *slot) getLocalNode() *LocalNode {
+	return o.scp.localNode
+}
+
+func (o *slot) getDriver() Driver {
+	return o.scp.driver
 }
