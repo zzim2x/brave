@@ -41,6 +41,28 @@ func isNewerStatement(old Nomination, st Nomination) bool {
 	return true
 }
 
+func isSane(statement Statement) bool {
+	nom := statement.Nomination
+
+	if len(nom.Votes) + len(nom.Accepted) == 0 {
+		return false
+	}
+
+	for i := 1; i < len(nom.Votes); i++ {
+		if ValueComparator(nom.Votes[i-1], nom.Votes[i]) == 1 {
+			return false
+		}
+	}
+
+	for i := 1; i < len(nom.Accepted); i++ {
+		if ValueComparator(nom.Accepted[i-1], nom.Accepted[i]) == 1 {
+			return false
+		}
+	}
+
+	return true
+}
+
 func isSubsetHelper(p []Value, v []Value, notEqual bool) bool {
 	return true
 }
@@ -124,6 +146,21 @@ func (o *nominationProtocol) hashValue(value Value) uint64 {
 }
 
 func (o *nominationProtocol) processEnvelope(envelope Envelope) EnvelopeState {
+	st := envelope.Statement
+	nom := st.Nomination
+
+	isNewer := false
+	if old, exists := o.latestNominations[st.NodeId]; exists {
+		isNewer = isNewerStatement(*old.Statement.Nomination, *nom)
+	} else {
+		isNewer = true
+	}
+
+	if isNewer {
+		if isSane(st) {
+		}
+	}
+
 	return EnvelopeStateValid
 }
 
