@@ -41,9 +41,22 @@ func isSubsetHelper(p []Value, v []Value, notEqual bool) bool {
 	return true
 }
 
-func (o *nominationProtocol) nominate(value *Value, previousValue *Value, timeout bool) bool {
+func (o *nominationProtocol) nominate(value Value, previousValue Value, timeout bool) bool {
+	if timeout && !o.started {
+		return false
+	}
+
 	o.started = true
+	o.previousValue = previousValue
+	o.roundNumber++
+
+	o.updateRoundLeaders()
+
 	return true
+}
+
+func (o *nominationProtocol) updateRoundLeaders() {
+
 }
 
 func (o *nominationProtocol) processEnvelope(envelope Envelope) EnvelopeState {

@@ -1,23 +1,40 @@
 package scp
 
+import (
+	"io"
+	"crypto/rand"
+	"bytes"
+	"github.com/agl/ed25519"
+)
+
 const (
 	KeyTypeEd25519   KeyType = 0
 	KeyTypePreAuthTx KeyType = 1
 	KeyTypeHashX     KeyType = 2
 )
 
-type KeyType int32
-type Uint512 [64]uint8
-
 type SecretKey struct {
-	KeyType   KeyType
-	secretKey Uint256
+	rawSeed   Uint256
+	PublicKey PublicKey
 }
 
-func randomSecret() (SecretKey, error) {
-	return SecretKey{
-		KeyType: KeyTypeEd25519,
-	}, nil
+func randomSecret() (*SecretKey, error) {
+	var rawSeed [32]uint8
+	if _, err := io.ReadFull(rand.Reader, rawSeed[:]); err != nil {
+		return nil, err
+	}
+
+	if pubkey, _, err := ed25519.GenerateKey(bytes.NewReader(rawSeed[:])); err != nil {
+		return nil, err
+	} else {
+		return &SecretKey{
+			rawSeed: rawSeed,
+			PublicKey: PublicKey{
+				Type:    KeyTypeEd25519,
+				Ed25519: *pubkey,
+			},
+		}, nil
+	}
 }
 
 func (o *SecretKey) Sign(bytes []byte) Signature {
@@ -26,10 +43,6 @@ func (o *SecretKey) Sign(bytes []byte) Signature {
 
 func (o *SecretKey) VerifySignature(publicKey PublicKey, signature Signature, bytes []byte) bool {
 	return false
-}
-
-func (o *SecretKey) GetPublicKey() PublicKey {
-	return PublicKey{}
 }
 
 // 눈으로 식별이 용이하고 수기할 수 있는
@@ -43,4 +56,3 @@ func (o *SecretKey) GetStrPublicKey() string {
 func (o *SecretKey) GetStrKeySeed() string {
 	return ""
 }
-

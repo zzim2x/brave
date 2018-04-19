@@ -6,8 +6,10 @@ import (
 	"crypto/sha256"
 )
 
+type KeyType int32
 type Hash [32]uint8
 type Uint256 [32]uint8
+type Uint512 [64]uint8
 type Value []uint8
 type Signature []byte // variable payload max size : 64 : (size + 7) & ~3
 type SignatureHint [4]uint8
@@ -27,7 +29,7 @@ type QuorumSet struct {
 }
 
 type PublicKey struct {
-	Type    int32
+	Type    KeyType
 	Ed25519 Uint256
 }
 

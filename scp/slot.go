@@ -27,7 +27,7 @@ func newSlot(scp *SCP, slotId uint64) *slot {
 	}
 }
 
-func (o *slot) nominate(value *Value, previousValue *Value, timeout bool) bool {
+func (o *slot) nominate(value Value, previousValue Value, timeout bool) bool {
 	return o.nominationProtocol.nominate(value, previousValue, timeout)
 }
 

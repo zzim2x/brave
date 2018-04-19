@@ -3,21 +3,23 @@ package scp
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
-var k1 = PublicKey{Type: 0, Ed25519: [32]byte{1}}
-var k2 = PublicKey{Type: 0, Ed25519: [32]byte{2}}
-var k3 = PublicKey{Type: 0, Ed25519: [32]byte{3}}
-var k4 = PublicKey{Type: 0, Ed25519: [32]byte{4}}
-var k5 = PublicKey{Type: 0, Ed25519: [32]byte{5}}
-var k6 = PublicKey{Type: 0, Ed25519: [32]byte{6}}
-var k7 = PublicKey{Type: 0, Ed25519: [32]byte{7}}
-var quorumSet3T1 = QuorumSet{Threshold: 1, Validators: []PublicKey{k1, k2, k3}}
-var quorumSet5T4 = QuorumSet{Threshold: 4, Validators: []PublicKey{k1, k2, k3, k4, k5}}
-var quorumSet7T5 = QuorumSet{Threshold: 5, Validators: []PublicKey{k1, k2, k3, k4, k5, k6, k7}}
+var k1, _ = randomSecret()
+var k2, _ = randomSecret()
+var k3, _ = randomSecret()
+var k4, _ = randomSecret()
+var k5, _ = randomSecret()
+var k6, _ = randomSecret()
+var k7, _ = randomSecret()
+
+var quorumSet3T1 = QuorumSet{Threshold: 1, Validators: []PublicKey{k1.PublicKey, k2.PublicKey, k3.PublicKey}}
+var quorumSet5T4 = QuorumSet{Threshold: 4, Validators: []PublicKey{k1.PublicKey, k2.PublicKey, k3.PublicKey, k4.PublicKey, k5.PublicKey}}
+var quorumSet7T5 = QuorumSet{Threshold: 5, Validators: []PublicKey{k1.PublicKey, k2.PublicKey, k3.PublicKey, k4.PublicKey, k5.PublicKey, k6.PublicKey, k7.PublicKey}}
 
 func TestSCP_GetSlot(t *testing.T) {
-	scp := NewSCP(nil, k1, true, quorumSet3T1)
+	scp := NewSCP(nil, k1.PublicKey, true, quorumSet3T1)
 
 	s1 := scp.GetSlot(uint64(1), false)
 	assert.Nil(t, s1)
@@ -30,7 +32,7 @@ func TestSCP_GetSlot(t *testing.T) {
 }
 
 func TestSCP_PurgeSlots(t *testing.T) {
-	scp := NewSCP(nil, k1, true, quorumSet3T1)
+	scp := NewSCP(nil, k1.PublicKey, true, quorumSet3T1)
 	for i := 1; i <= 10; i++ {
 		scp.GetSlot(uint64(i), true)
 	}
@@ -43,17 +45,25 @@ func TestSCP_PurgeSlots(t *testing.T) {
 	assert.Equal(t, uint64(10), scp.GetHighSlotIndex())
 }
 
-// quorum 5 threshold 4 & nomination test
-func TestSCP_Nominate(t *testing.T) {
+// quorum 5 threshold 4
+func TestSCP_Simple(t *testing.T) {
 	var envs []Envelope
-
 	driver := &testDriver{}
-	scp := NewSCP(driver, k1, true, quorumSet5T4)
-	quorumSetHash := quorumSet5T4.Hash()
+	qs1 := quorumSet5T4
 
-	votes, accepted := make([]Value, 0), make([]Value, 0)
+	scp := NewSCP(driver, qs1.Validators[0], true, qs1)
+
+	votes := make([]Value, 0)
+
 	votes = append(votes, Value{})
 
-	scp.ReceiveEnvelope()
+	scp.Nominate(1, votes[0], Value{})
+
+	scp.ReceiveEnvelope(newNomination(1, *k2, qs1.Hash()))
+	scp.ReceiveEnvelope(newNomination(1, *k3, qs1.Hash()))
+
+	// wip
+
+	fmt.Println(envs, scp)
 
 }

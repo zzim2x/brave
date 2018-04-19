@@ -58,8 +58,8 @@ func NewSCP(driver Driver, nodeId PublicKey, isValidator bool, quorumSet QuorumS
 	return scp
 }
 
-func (o *SCP) Nominate(slotId uint64, value *Value, previousValue *Value) bool {
-	return o.GetSlot(slotId, true).nominate(value, previousValue, false)
+func (o *SCP) Nominate(slotIndex uint64, value Value, previousValue Value) bool {
+	return o.GetSlot(slotIndex, true).nominate(value, previousValue, false)
 }
 
 func (o *SCP) StopNominate(slotId uint64) {

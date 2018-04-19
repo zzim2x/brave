@@ -8,10 +8,10 @@ import (
 func TestForEachNodes(t *testing.T) {
 	quorumSet1 := QuorumSet{
 		Threshold: 1,
-		Validators: []PublicKey{k1, k2, k3},
+		Validators: []PublicKey{k1.PublicKey, k2.PublicKey, k3.PublicKey},
 		InnerSets: []QuorumSet{
-				{Threshold: 1, Validators: []PublicKey{k1, k2, k3}},
-				{Threshold: 1, Validators: []PublicKey{k1, k2, k3}},
+				{Threshold: 1, Validators: []PublicKey{k1.PublicKey, k2.PublicKey, k3.PublicKey}},
+				{Threshold: 1, Validators: []PublicKey{k1.PublicKey, k2.PublicKey, k3.PublicKey}},
 		},
 	}
 
