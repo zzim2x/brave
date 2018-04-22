@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"hash"
 	"github.com/davecgh/go-xdr/xdr"
+	"github.com/emirpasic/gods/sets/treeset"
 )
 
 type EnvelopeState int
@@ -43,7 +44,9 @@ type Driver interface {
 
 	NominatingValue(slotIndex uint64, value Value)
 
-	CombineCandidates(slotIndex uint64) Value
+	CombineCandidates(slotIndex uint64, candidates *treeset.Set) Value
+
+	UpdatedCandidateValue(slotIndex uint64, value Value)
 
 	ComputeHashNode(slotIndex uint64, prev Value, isPriority bool, roundNumber int32, nodeId PublicKey) uint64
 

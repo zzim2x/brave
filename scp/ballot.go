@@ -10,6 +10,10 @@ func newBallotProtocol(s *slot) *ballotProtocol {
 	}
 }
 
+func (o *ballotProtocol) bumpState(value Value, force bool) bool {
+	return false
+}
+
 func (o *ballotProtocol) processEnvelope(envelope Envelope, self bool) EnvelopeState {
 	return EnvelopeStateValid
 }

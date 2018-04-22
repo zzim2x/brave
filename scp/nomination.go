@@ -216,7 +216,9 @@ func (o *nominationProtocol) processEnvelope(envelope Envelope) EnvelopeState {
 				}
 
 				if newCandidates {
-					o.slot.getDriver()
+					o.latestCompositeCandidate = o.slot.getDriver().CombineCandidates(o.slot.slotIndex, o.candidates)
+					o.slot.getDriver().UpdatedCandidateValue(o.slot.slotIndex, o.latestCompositeCandidate)
+					o.slot.bumpState(o.latestCompositeCandidate, false)
 				}
 			}
 

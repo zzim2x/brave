@@ -93,6 +93,10 @@ func (o *slot) getQuorumSet(statement Statement) *QuorumSet {
 	return o.scp.driver.GetQuorumSet(o.getCompanionQuorumSetHashFromStatement(statement))
 }
 
+func (o *slot) bumpState(value Value, force bool) bool {
+	return o.ballotProtocol.bumpState(value, force)
+}
+
 func (o *slot) getCompanionQuorumSetHashFromStatement(statement Statement) Hash {
 	switch statement.StatementType {
 	case StatementTypePrepare:

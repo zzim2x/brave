@@ -3,6 +3,7 @@ package scp
 import (
 	"hash"
 	"github.com/davecgh/go-xdr/xdr"
+	"github.com/emirpasic/gods/sets/treeset"
 )
 
 type testDriver struct {
@@ -42,7 +43,7 @@ func (o *testDriver) ValidateValue(slotId uint64, value Value, nomination bool) 
 func (o *testDriver) NominatingValue(slotIndex uint64, value Value) {
 }
 
-func (o *testDriver) CombineCandidates(slotIndex uint64) Value {
+func (o *testDriver) CombineCandidates(slotIndex uint64, candidates *treeset.Set) Value {
 	return nil
 }
 
