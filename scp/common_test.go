@@ -39,6 +39,13 @@ func (o *testDriver) ValidateValue(slotId uint64, value Value, nomination bool) 
 	return 0
 }
 
+func (o *testDriver) NominatingValue(slotIndex uint64, value Value) {
+}
+
+func (o *testDriver) CombineCandidates(slotIndex uint64) Value {
+	return nil
+}
+
 func (o *testDriver) ComputeHashNode(slotIndex uint64, prev Value, isPriority bool, roundNumber int32, nodeId PublicKey) uint64 {
 	return hashHelper(slotIndex, prev, func(hash hash.Hash) {
 		var priority uint32

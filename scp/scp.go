@@ -41,6 +41,10 @@ type Driver interface {
 
 	EmitEnvelope(envelope Envelope)
 
+	NominatingValue(slotIndex uint64, value Value)
+
+	CombineCandidates(slotIndex uint64) Value
+
 	ComputeHashNode(slotIndex uint64, prev Value, isPriority bool, roundNumber int32, nodeId PublicKey) uint64
 
 	ComputeHashValue(slotIndex uint64, prev Value, roundNumber int32, value Value) uint64
@@ -112,6 +116,10 @@ func (o *SCP) PurgeSlots(maxSlotId uint64) {
 		i += 1
 	}
 	o.knownSlotIds = knownSlotIds
+}
+
+func (o *SCP) validateValue(slotIndex uint64, value Value, nomination bool) ValidationLevel {
+	return ValidationLevelMaybeValidValue
 }
 
 func (o *SCP) GetLocalID() PublicKey {

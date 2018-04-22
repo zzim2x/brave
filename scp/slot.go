@@ -4,7 +4,7 @@ import "time"
 
 type slot struct {
 	scp                *SCP
-	slotId             uint64
+	slotIndex          uint64
 	ballotProtocol     *ballotProtocol
 	nominationProtocol *nominationProtocol
 	fullyValidated     bool
@@ -21,7 +21,7 @@ type slotHistoricalStatement struct {
 func newSlot(scp *SCP, slotId uint64) *slot {
 	s := &slot{
 		scp:               scp,
-		slotId:            slotId,
+		slotIndex:         slotId,
 		statementsHistory: make([]slotHistoricalStatement, 0),
 	}
 	s.ballotProtocol = newBallotProtocol(s)
@@ -39,6 +39,10 @@ func (o *slot) stopNomination() {
 
 func (o *slot) federatedAccept(votedPredicate func(Statement) bool, acceptedPredicate func(Statement) bool, envelopes map[PublicKey]Envelope) bool {
 	return true
+}
+
+func (o *slot) federatedRatify(votedPredicate func(Statement) bool, envelopes map[PublicKey]Envelope) bool {
+	return false
 }
 
 func (o *slot) getLatestCompositeCandidate() Value {
@@ -59,6 +63,18 @@ func (o *slot) processEnvelope(envelope Envelope, self bool) EnvelopeState {
 	} else {
 		return o.ballotProtocol.processEnvelope(envelope, self)
 	}
+}
+
+func (o *slot) createEnvelope(statement Statement) Envelope {
+	env := Envelope{
+		Statement: statement,
+	}
+
+	env.Statement.NodeId = o.getLocalNode().nodeId
+	env.Statement.SlotIndex = o.slotIndex
+	o.getDriver().SignEnvelope(&env)
+
+	return env
 }
 
 func (o *slot) IsNodeInQuorum(nodeId PublicKey) TriBool {
