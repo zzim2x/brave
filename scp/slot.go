@@ -1,5 +1,7 @@
 package scp
 
+import "time"
+
 type slot struct {
 	scp                *SCP
 	slotId             uint64
@@ -35,8 +37,20 @@ func (o *slot) stopNomination() {
 	o.nominationProtocol.stopNomination()
 }
 
+func (o *slot) federatedAccept(votedPredicate func(Statement) bool, acceptedPredicate func(Statement) bool, envelopes map[PublicKey]Envelope) bool {
+	return true
+}
+
 func (o *slot) getLatestCompositeCandidate() Value {
 	return o.nominationProtocol.getLatestCompositeCandidate()
+}
+
+func (o *slot) recordStatement(statement Statement) {
+	o.statementsHistory = append(o.statementsHistory, slotHistoricalStatement{
+		when:      uint64(time.Now().Unix()),
+		statement: statement,
+		validated: o.fullyValidated,
+	})
 }
 
 func (o *slot) processEnvelope(envelope Envelope, self bool) EnvelopeState {

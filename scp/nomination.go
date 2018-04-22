@@ -156,12 +156,53 @@ func (o *nominationProtocol) processEnvelope(envelope Envelope) EnvelopeState {
 		isNewer = true
 	}
 
+	res := EnvelopeStateInvalid
+
 	if isNewer {
 		if isSane(st) {
+			o.recordEnvelope(envelope)
+			res = EnvelopeStateValid
+
+			if o.started {
+				for _, v := range nom.Votes {
+					if o.accepted.Contains(v) {
+						continue
+					}
+
+					if o.slot.federatedAccept(votedPredicate(v), acceptedPredicate(v), o.latestNominations) {
+					}
+				}
+			}
+
+			return res
 		}
 	}
 
-	return EnvelopeStateValid
+	return res
+}
+
+func votedPredicate(v Value) func(Statement) bool {
+	return func(statement Statement) bool {
+		n := statement.Nomination
+		for _, nomVote := range n.Votes {
+			if ValueComparator(v, nomVote) == 0 {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func acceptedPredicate(v Value) func(Statement) bool {
+	return func(statement Statement) bool {
+		n := statement.Nomination
+		for _, nomVote := range n.Accepted {
+			if ValueComparator(v, nomVote) == 0 {
+				return true
+			}
+		}
+		return false
+	}
 }
 
 func getStatementValues(statement Statement) []Value {
@@ -181,6 +222,11 @@ func (o *nominationProtocol) getLastMessageSend() *Envelope {
 }
 
 func (o *nominationProtocol) setStateFromEnvelope(envelope Envelope) {
+}
+
+func (o *nominationProtocol) recordEnvelope(envelope Envelope) {
+	o.latestNominations[envelope.Statement.NodeId] = envelope
+	o.slot.recordStatement(envelope.Statement)
 }
 
 func (o *nominationProtocol) getCurrentState() []Envelope {
