@@ -54,13 +54,14 @@ func TestSCP_Simple(t *testing.T) {
 	scp := NewSCP(driver, qs1.Validators[0], true, qs1)
 
 	votes := make([]Value, 0)
+	accepted := make([]Value, 0)
 
 	votes = append(votes, Value{})
 
 	scp.Nominate(1, votes[0], Value{})
 
-	scp.ReceiveEnvelope(newNomination(1, *k2, qs1.Hash()))
-	scp.ReceiveEnvelope(newNomination(1, *k3, qs1.Hash()))
+	scp.ReceiveEnvelope(newNomination(1, *k2, qs1.Hash(), votes, accepted))
+	scp.ReceiveEnvelope(newNomination(1, *k3, qs1.Hash(), votes, accepted))
 
 	fmt.Println(envs, scp)
 

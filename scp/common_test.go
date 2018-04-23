@@ -4,6 +4,7 @@ import (
 	"hash"
 	"github.com/davecgh/go-xdr/xdr"
 	"github.com/emirpasic/gods/sets/treeset"
+	"fmt"
 )
 
 type testDriver struct {
@@ -19,10 +20,11 @@ func newTestDriver() *testDriver {
 }
 
 func (o *testDriver) VerifyEnvelope(envelope Envelope) bool {
-	return false
+	return true
 }
 
 func (o *testDriver) EmitEnvelope(envelope Envelope) {
+	fmt.Println("EMIT", envelope)
 }
 
 func (o *testDriver) SignEnvelope(envelope *Envelope) {
@@ -45,6 +47,16 @@ func (o *testDriver) NominatingValue(slotIndex uint64, value Value) {
 
 func (o *testDriver) CombineCandidates(slotIndex uint64, candidates *treeset.Set) Value {
 	return nil
+}
+
+func (o *testDriver) UpdatedCandidateValue(slotIndex uint64, value Value) {
+}
+
+func (o *testDriver) SetupTimer(slotIndex uint64, timerId int32, timeout uint64, fn func()) {
+}
+
+func (o *testDriver) ComputeTimeout(roundNumber uint32) uint64 {
+	return 1000
 }
 
 func (o *testDriver) ComputeHashNode(slotIndex uint64, prev Value, isPriority bool, roundNumber int32, nodeId PublicKey) uint64 {
@@ -71,15 +83,15 @@ func (o *testDriver) ComputeHashValue(slotIndex uint64, prev Value, roundNumber 
 	return uint64(0)
 }
 
-func newNomination(slotIndex uint64, secretKey SecretKey, quorumSetHash Hash) Envelope {
+func newNomination(slotIndex uint64, secretKey SecretKey, quorumSetHash Hash, votes []Value, accepted []Value) Envelope {
 	return makeEnvelope(secretKey, Statement{
 		SlotIndex:     slotIndex,
 		NodeId:        secretKey.PublicKey,
 		StatementType: StatementTypeNomination,
 		Nomination: &Nomination{
 			QuorumSetHash: quorumSetHash,
-			Votes:         []Value{},
-			Accepted:      []Value{},
+			Votes:         votes,
+			Accepted:      accepted,
 		},
 	})
 }

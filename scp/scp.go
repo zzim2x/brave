@@ -48,6 +48,10 @@ type Driver interface {
 
 	UpdatedCandidateValue(slotIndex uint64, value Value)
 
+	SetupTimer(slotIndex uint64, timerId int32, timeout uint64, fn func())
+
+	ComputeTimeout(roundNumber uint32) uint64
+
 	ComputeHashNode(slotIndex uint64, prev Value, isPriority bool, roundNumber int32, nodeId PublicKey) uint64
 
 	ComputeHashValue(slotIndex uint64, prev Value, roundNumber int32, value Value) uint64
@@ -122,7 +126,7 @@ func (o *SCP) PurgeSlots(maxSlotId uint64) {
 }
 
 func (o *SCP) validateValue(slotIndex uint64, value Value, nomination bool) ValidationLevel {
-	return ValidationLevelMaybeValidValue
+	return ValidationLevelFullyValidatedValue
 }
 
 func (o *SCP) GetLocalID() PublicKey {

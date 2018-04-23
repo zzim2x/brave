@@ -24,12 +24,14 @@ type nominationProtocol struct {
 
 func newNominationProtocol(s *slot) *nominationProtocol {
 	return &nominationProtocol{
-		slot:         s,
-		started:      false,
-		roundNumber:  0,
-		roundLeaders: treeset.NewWith(ValueComparator),
-		votes:        treeset.NewWith(ValueComparator),
-		accepted:     treeset.NewWith(ValueComparator),
+		slot:              s,
+		started:           false,
+		roundNumber:       0,
+		latestNominations: make(map[PublicKey]Envelope),
+		roundLeaders:      treeset.NewWith(ValueComparator),
+		votes:             treeset.NewWith(ValueComparator),
+		accepted:          treeset.NewWith(ValueComparator),
+		candidates:        treeset.NewWith(ValueComparator),
 	}
 }
 
@@ -107,7 +109,16 @@ func (o *nominationProtocol) nominate(value Value, previousValue Value, timeout 
 		})
 	}
 
-	// wip
+	nominationTimeout := o.slot.getDriver().ComputeTimeout(uint32(o.roundNumber))
+	o.slot.getDriver().NominatingValue(o.slot.slotIndex, nominatingValue)
+
+	o.slot.getDriver().SetupTimer(o.slot.slotIndex, 0, nominationTimeout, func() {
+		o.slot.nominate(value, previousValue, true)
+	})
+
+	if updated {
+		o.emitNomination()
+	}
 
 	return updated
 }

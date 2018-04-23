@@ -23,6 +23,7 @@ func newSlot(scp *SCP, slotId uint64) *slot {
 		scp:               scp,
 		slotIndex:         slotId,
 		statementsHistory: make([]slotHistoricalStatement, 0),
+		fullyValidated:    scp.localNode.isValidator,
 	}
 	s.ballotProtocol = newBallotProtocol(s)
 	s.nominationProtocol = newNominationProtocol(s)
