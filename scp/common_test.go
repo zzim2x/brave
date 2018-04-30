@@ -9,6 +9,8 @@ import (
 
 type testDriver struct {
 	quorumSets map[Hash]*QuorumSet
+
+	envelopes []Envelope
 }
 
 var _, _ Driver = &testDriver{}, (*testDriver)(nil)
@@ -24,10 +26,16 @@ func (o *testDriver) VerifyEnvelope(envelope Envelope) bool {
 }
 
 func (o *testDriver) EmitEnvelope(envelope Envelope) {
-	fmt.Println("EMIT", envelope)
+	fmt.Println("emitEnvelope", "votes", len(envelope.Statement.Nomination.Votes), "accepted", len(envelope.Statement.Nomination.Accepted))
+
+	o.envelopes = append(o.envelopes, envelope)
 }
 
 func (o *testDriver) SignEnvelope(envelope *Envelope) {
+}
+
+func (o *testDriver) ExtractValidValue(slotIndex uint64, value Value) Value {
+	return value
 }
 
 func (o *testDriver) GetQuorumSet(hash Hash) *QuorumSet {
@@ -38,7 +46,7 @@ func (o *testDriver) storeQuorumSet(quorumSet *QuorumSet) {
 	o.quorumSets[quorumSet.Hash()] = quorumSet
 }
 
-func (o *testDriver) ValidateValue(slotId uint64, value Value, nomination bool) ValidationLevel {
+func (o *testDriver) ValidateValue(slotIndex uint64, value Value, nomination bool) ValidationLevel {
 	return 0
 }
 

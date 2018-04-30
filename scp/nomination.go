@@ -96,8 +96,8 @@ func (o *nominationProtocol) nominate(value Value, previousValue Value, timeout 
 		}
 		nominatingValue = value
 	} else {
-		fmt.Println("o.roundLeaders")
 		o.roundLeaders.Each(func(index int, value interface{}) {
+			fmt.Println("latestNominations", value, o.latestNominations[value.(PublicKey)])
 			if it, exists := o.latestNominations[value.(PublicKey)]; exists {
 				nom := it.Statement.Nomination
 				nominatingValue = o.getNewValueFromNomination(*nom)
@@ -169,6 +169,7 @@ func (o *nominationProtocol) processEnvelope(envelope Envelope) EnvelopeState {
 
 	isNewer := o.isNewerStatement(st.NodeId, *nom)
 	res := EnvelopeStateInvalid
+
 
 	if isNewer {
 		if isSane(st) {
@@ -269,7 +270,7 @@ func (o *nominationProtocol) validateValue(value Value) ValidationLevel {
 }
 
 func (o *nominationProtocol) extractValidValue(value Value) Value {
-	return nil
+	return o.slot.getDriver().ExtractValidValue(o.slot.slotIndex, value)
 }
 
 func (o *nominationProtocol) emitNomination() {

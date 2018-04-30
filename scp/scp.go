@@ -27,6 +27,8 @@ const (
 	TriBoolTrue                        TriBool         = 1
 	TriBoolFalse                       TriBool         = 2
 	TriBoolMaybe                       TriBool         = 3
+	TimerNomination                                    = 0
+	TimerBallotProtocol                                = 1
 )
 
 // SCP 본연의 기능만을 수행하기위해서 필요한 driver
@@ -36,7 +38,9 @@ type Driver interface {
 
 	VerifyEnvelope(envelope Envelope) bool
 
-	ValidateValue(slotId uint64, value Value, nomination bool) ValidationLevel
+	ValidateValue(slotIndex uint64, value Value, nomination bool) ValidationLevel
+
+	ExtractValidValue(slotIndex uint64, value Value) Value
 
 	GetQuorumSet(hash Hash) *QuorumSet
 
@@ -96,8 +100,8 @@ func (o *SCP) Nominate(slotIndex uint64, value Value, previousValue Value) bool 
 	return o.GetSlot(slotIndex, true).nominate(value, previousValue, false)
 }
 
-func (o *SCP) StopNominate(slotId uint64) {
-	s := o.GetSlot(slotId, false)
+func (o *SCP) StopNominate(slotIndex uint64) {
+	s := o.GetSlot(slotIndex, false)
 	if s != nil {
 		s.stopNomination()
 	}
@@ -110,12 +114,12 @@ func (o *SCP) ReceiveEnvelope(envelope Envelope) EnvelopeState {
 	return o.GetSlot(envelope.Statement.SlotIndex, false).processEnvelope(envelope, false)
 }
 
-func (o *SCP) PurgeSlots(maxSlotId uint64) {
+func (o *SCP) PurgeSlots(maxSlotIndex uint64) {
 	i := 0
 
 	knownSlotIds := make([]uint64, 0)
 	for _, slotId := range o.knownSlotIds {
-		if slotId < maxSlotId {
+		if slotId < maxSlotIndex {
 			delete(o.knownSlots, slotId)
 		} else {
 			knownSlotIds = append(knownSlotIds, slotId)
@@ -172,18 +176,18 @@ func (o *SCP) GetHighSlotIndex() uint64 {
 	return uint64(slotId)
 }
 
-func (o *SCP) GetSlot(slotId uint64, create bool) *slot {
+func (o *SCP) GetSlot(slotIndex uint64, create bool) *slot {
 	o.RLock()
 	defer o.RUnlock()
 
-	if current, exists := o.knownSlots[slotId]; exists {
+	if current, exists := o.knownSlots[slotIndex]; exists {
 		return current
 	} else if !create {
 		return nil
 	}
 
-	o.knownSlots[slotId] = newSlot(o, slotId)
-	o.knownSlotIds = append(o.knownSlotIds, slotId)
+	o.knownSlots[slotIndex] = newSlot(o, slotIndex)
+	o.knownSlotIds = append(o.knownSlotIds, slotIndex)
 
-	return o.knownSlots[slotId]
+	return o.knownSlots[slotIndex]
 }

@@ -125,10 +125,97 @@ func IsVBlockingWithFilter(quorumSet QuorumSet, statements map[PublicKey]Envelop
 }
 
 func isVBlockingInternal(quorumSet QuorumSet, nodes []PublicKey) bool {
-	return true
+	if quorumSet.Threshold == 0 {
+		return false
+	}
+
+	leftTillBlock := uint32(1 + len(quorumSet.Validators) + len(quorumSet.InnerSets)) - quorumSet.Threshold
+
+	for _, validator := range quorumSet.Validators {
+		if contains(&nodes, &validator) {
+			leftTillBlock -= 1
+			if leftTillBlock <= 0 {
+				return true
+			}
+		}
+	}
+
+	for _, inner := range quorumSet.InnerSets {
+		if isVBlockingInternal(inner, nodes) {
+			leftTillBlock -= 1
+			if leftTillBlock <= 0 {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
-func IsQuorumSlice() {
+func IsQuorum(quorumSet QuorumSet, envelopes map[PublicKey]Envelope, qfun func(Statement) *QuorumSet, filter func(statement Statement) bool) bool {
+	nodes := make([]PublicKey, 0)
+	for key, envelope := range envelopes {
+		if filter(envelope.Statement) {
+			nodes = append(nodes, key)
+		}
+	}
+
+	for {
+		newNodes := make([]PublicKey, 0)
+		for _, n := range nodes {
+			qs := qfun(envelopes[n].Statement)
+
+			if qs != nil && IsQuorumSlice(*qs, &nodes) {
+				newNodes = append(newNodes, n)
+			} else {
+				continue
+			}
+		}
+
+		if len(newNodes) == len(nodes) {
+			break
+		}
+
+		nodes = newNodes
+	}
+
+	return IsQuorumSlice(quorumSet, &nodes)
+}
+
+func IsQuorumSlice(quorumSet QuorumSet, nodes *[]PublicKey) bool {
+	threshold := quorumSet.Threshold
+
+	for _, v := range quorumSet.Validators {
+		if contains(nodes, &v) {
+			threshold -= 1
+		}
+
+		if threshold <= 0 {
+			return true
+		}
+	}
+
+	for _, v := range quorumSet.InnerSets {
+		if IsQuorumSlice(v, nodes) {
+			threshold -= 1
+		}
+
+		if threshold <= 0 {
+			return true
+		}
+	}
+
+	return threshold <= 0
+
+}
+
+func contains(nodes *[]PublicKey, nodeId *PublicKey) bool {
+	for _, c := range *nodes {
+		if c == *nodeId {
+			return true
+		}
+	}
+	return false
 }
 
 func isQuorumSliceInternal(quorumSet QuorumSet, nodes []PublicKey) bool {

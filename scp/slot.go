@@ -1,6 +1,8 @@
 package scp
 
-import "time"
+import (
+	"time"
+)
 
 type slot struct {
 	scp                *SCP
@@ -18,10 +20,10 @@ type slotHistoricalStatement struct {
 	validated bool
 }
 
-func newSlot(scp *SCP, slotId uint64) *slot {
+func newSlot(scp *SCP, slotIndex uint64) *slot {
 	s := &slot{
 		scp:               scp,
-		slotIndex:         slotId,
+		slotIndex:         slotIndex,
 		statementsHistory: make([]slotHistoricalStatement, 0),
 		fullyValidated:    scp.localNode.isValidator,
 	}
@@ -39,7 +41,23 @@ func (o *slot) stopNomination() {
 }
 
 func (o *slot) federatedAccept(votedPredicate func(Statement) bool, acceptedPredicate func(Statement) bool, envelopes map[PublicKey]Envelope) bool {
-	return true
+	if IsVBlockingWithFilter(o.getLocalNode().quorumSet, envelopes, acceptedPredicate) {
+		return true
+	}
+
+	qfun := func(statement Statement) *QuorumSet {
+		return o.getDriver().GetQuorumSet(o.getCompanionQuorumSetHashFromStatement(statement))
+	}
+
+	ratifyFilter := func(statement Statement) bool {
+		return true
+	}
+
+	if IsQuorum(o.getLocalNode().quorumSet, envelopes, qfun, ratifyFilter) {
+		return true
+	}
+
+	return false
 }
 
 func (o *slot) federatedRatify(votedPredicate func(Statement) bool, envelopes map[PublicKey]Envelope) bool {
